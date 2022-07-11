@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 async def delete_records(engine: AsyncEngine, old_ids):
     async with engine.begin() as conn:
-        query = 'DELETE from companies where id in (' + old_ids + ')'
+        query = 'DELETE from domains where company_id in (' + old_ids + ')'
         await conn.execute(text(query))
-        query = 'DELETE from domains where id in (' + old_ids + ')'
+        query = 'DELETE from companies where id in (' + old_ids + ')'
         await conn.execute(text(query))
         
 
@@ -41,9 +41,8 @@ async def main():
         next(csv_file)
         for line in csv_file:
             old_ids = ','.join((str(i) for i in line[1:]))
-            await delete_records(engine, old_ids)
             await update_records(engine, line[0], old_ids)
-            print(line) 
+            await delete_records(engine, old_ids) 
 
 
 if __name__ == '__main__':
