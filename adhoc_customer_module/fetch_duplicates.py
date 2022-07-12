@@ -11,7 +11,7 @@ async def fetch_dup_company(engine: AsyncEngine):
         await conn.execute(query)
 
         query = text("""
-                SELECT id, name, ug_id from companies c group by name, ug_id having count(*)>1 limit 100;
+                SELECT id, name, ug_id from companies c group by name, ug_id having count(*)>1 order by count(*) desc limit 100;
             """)
         result = list(await conn.execute(query))
         return result
@@ -39,12 +39,6 @@ async def main():
     )
 
     rows = await fetch_dup_company(engine)
-
-    fields = ['ID', 'Name', 'UG_ID']  
-    with open( "to_keep.csv" , 'w') as csvfile: 
-        csvwriter = csv.writer(csvfile)          
-        csvwriter.writerow(fields) 
-        csvwriter.writerows(rows)
 
     fields = ['Original_ID','Old_IDs']  
     with open("to_discard.csv", 'w') as csvfile: 
